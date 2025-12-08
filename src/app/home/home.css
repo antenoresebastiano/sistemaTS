@@ -1,0 +1,38 @@
+.container {
+    display: flex;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* MENU LATERALE */
+  .sidebar {
+    width: 220px;
+    background: #1e293b;
+    color: white;
+    padding: 20px;
+  }
+  
+  .sidebar ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .sidebar li {
+    padding: 12px;
+    margin-bottom: 8px;
+    background: #334155;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .sidebar li:hover {
+    background: #475569;
+  }
+  
+  /* AREA CONTENUTI */
+  .content {
+    flex: 1;
+    padding: 20px;
+    background: #f1f5f9;
+  }
+  

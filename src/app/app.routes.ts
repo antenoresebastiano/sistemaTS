@@ -1,3 +1,28 @@
-import { Routes } from '@angular/router';
 
-export const routes: Routes = [];
+import { Routes } from '@angular/router';
+import { LoginComponent } from './login/login.component';
+import { Home } from './home/home';
+
+// Componenti figli
+import { DashboardComponent } from './dashboard/dashboard.component';
+//import { UtentiComponent } from './utenti/utenti.component';
+//import { ReportComponent } from './report/report.component';
+
+
+
+export const routes: Routes = [
+    { path: 'login', component: LoginComponent },
+  
+    {
+      path: 'home',
+      component: Home,
+      children: [
+        { path: 'dashboard', component: DashboardComponent },
+  //      { path: 'utenti', component: UtentiComponent },
+  //      { path: 'report', component: ReportComponent },
+        { path: '', redirectTo: 'login', pathMatch: 'full' }
+      ]
+    },
+  
+    { path: '', redirectTo: 'login', pathMatch: 'full' }
+  ];

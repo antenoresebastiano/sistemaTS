@@ -1,0 +1,17 @@
+<div class="container">
+
+    <!-- MENU LATERALE -->
+    <aside class="sidebar">
+      <ul>
+        <li (click)="navigateTo('dashboard')">Dashboard</li>
+        <li (click)="navigateTo('utenti')">Gestione Utenti</li>
+        <li (click)="navigateTo('report')">Report</li>
+      </ul>
+    </aside>
+  
+    <!-- AREA CONTENUTI -->
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  
+  </div>
