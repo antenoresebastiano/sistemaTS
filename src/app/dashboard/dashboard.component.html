@@ -1,1 +1,135 @@
-<p>dashboard.component works!</p>
+<div class="login-container">
+    <h2>Gestione Fatture</h2>
+    
+    <form (ngSubmit)="onLogin()">
+      
+      <div class="row">
+        <div class="field">
+          
+          <input
+            id="username"
+            disabled
+            type="text"
+            [(ngModel)]="username"
+            name="username"
+            required
+          />
+        </div>
+      
+        <div class="field">
+          
+          <input
+            id="codiceFiscale"
+            type="text"
+            [(ngModel)]="codiceFiscale"
+            name="codiceFiscale"
+            disabled
+            required
+          />
+        </div>
+      
+      
+        <div class="field">
+          
+          <input
+            id="indirizzo"
+            disabled
+            type="text"
+            [(ngModel)]="indirizzo"
+            name="indirizzo"
+            required
+          />
+        </div>
+      
+      </div>
+    
+    </form>
+  
+    <br> <br>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Data</mat-label>
+    <input matInput [matDatepicker]="picker" [(ngModel)]="dataSelezionata">
+    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+  </mat-form-field>
+
+</div>
+
+
+  <div class="login-container">
+    
+    <form (ngSubmit)="onLogin()">
+      
+      <div class="row">
+        <div class="field">
+
+          <label for="opzioneSelezionata">Paziente</label>
+
+          <select 
+          [(ngModel)]="opzioneSelezionata" 
+          name="opzioneSelezionata"
+          (change)="onPazienteChange()"
+          style="width: 300px"
+          >
+            <option *ngFor="let item of listaFiltrata" [value]="item.id">
+            {{ item.Cognome }} {{ item.Nome }}
+          </option>
+        </select>
+        </div>
+
+        
+      <input 
+        type="text" 
+        [(ngModel)]="filtro" 
+        placeholder="Cerca per cognome o nome"
+        name="filtro"
+        class="search-box"
+        style="width: 100px"
+      />
+    </div>
+    <br><br><br>
+
+    <div class="row">
+      <div class="field">
+        <label>Codice Fiscale</label>
+        <input type="text" [value]="codiceFiscale" disabled>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Indirizzo</label>
+        <input type="text" [value]="indirizzo" disabled>
+      </div>
+    </div>
+
+
+
+    <div class="combo-editabile">
+      
+      <input 
+        type="text" 
+        [(ngModel)]="valoreSelezionato"
+        name="valoreSelezionatoInput"
+        placeholder="Scrivi o scegli..."
+        class="input-editabile"
+      />
+    
+      <select 
+        [(ngModel)]="valoreSelezionato"
+        name="valoreSelezionatoSelect"
+        class="combo"
+      >
+        <option *ngFor="let item of lista" [value]="item.valore">
+          {{ item.descrizione }}
+        </option>
+      </select>
+    
+    </div>
+
+    
+
+      <button type="submit">Login</button>
+    </form>
+  </div>
+  
