@@ -2,7 +2,24 @@
     <h2>Gestione Fatture</h2>
     
     <form (ngSubmit)="onLogin()">
-      
+      <div class="row">
+        <label for="numFattura"> Fattura N. </label>
+        <div class="field">
+          <input
+            id="numFattura"
+            disabled
+            type="text"
+            [(ngModel)]="numFattura"
+            name="numFattura"
+            style="width: 80px ; background-color: #93c5e6;"
+            border-radius: 4px;
+            required
+          />
+        </div>
+      </div>
+
+      <br>
+
       <div class="row">
         <div class="field">
           
@@ -19,10 +36,10 @@
         <div class="field">
           
           <input
-            id="codiceFiscale"
+            id="codiceFiscaleMedico"
             type="text"
-            [(ngModel)]="codiceFiscale"
-            name="codiceFiscale"
+            [(ngModel)]="codiceFiscaleMedico"
+            name="codiceFiscaleMedico"
             disabled
             required
           />
@@ -32,11 +49,11 @@
         <div class="field">
           
           <input
-            id="indirizzo"
+            id="indirizzoMedico"
             disabled
             type="text"
-            [(ngModel)]="indirizzo"
-            name="indirizzo"
+            [(ngModel)]="indirizzoMedico"
+            name="indirizzoMedico"
             required
           />
         </div>
@@ -47,7 +64,7 @@
   
     <br> <br>
 
-  <mat-form-field appearance="fill">
+  <mat-form-field  appearance="fill">
     <mat-label>Data</mat-label>
     <input matInput [matDatepicker]="picker" [(ngModel)]="dataSelezionata">
     <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
@@ -59,7 +76,7 @@
 
   <div class="login-container">
     
-    <form (ngSubmit)="onLogin()">
+    <form #f="ngForm">   <!--(ngSubmit)="onLogin()">-->
       
       <div class="row">
         <div class="field">
@@ -92,18 +109,28 @@
 
     <div class="row">
       <div class="field">
-        <label>Codice Fiscale</label>
-        <input type="text" [value]="codiceFiscale" disabled>
+        <label>Nome Completo</label>
+        <input type="text" [value]="nomeCompletoPaziente"  style="background-color: #93c5e6;">
       </div>
     </div>
+    
+    
+    <div class="row">
+      <div class="field">
+        <label>Codice Fiscale</label>
+        <input type="text" [value]="codiceFiscalePaziente"  style="background-color: #93c5e6;">
+      </div>
+    </div>
+
     <div class="row">
       <div class="field">
         <label>Indirizzo</label>
-        <input type="text" [value]="indirizzo" disabled>
+        <input type="text" [value]="indirizzoPaziente"  style="background-color: #93c5e6;">
       </div>
     </div>
 
 
+    <br><br>
 
     <div class="combo-editabile">
       
@@ -113,23 +140,50 @@
         name="valoreSelezionatoInput"
         placeholder="Scrivi o scegli..."
         class="input-editabile"
+        style="width: 500px ; background-color: #93c5e6;"
       />
-    
+      
+      <label>Importo</label>
+      <input 
+      type="text" 
+      [(ngModel)]="valoreSelezionatoImporto"
+      name="valoreSelezionatoImporto"
+      placeholder="..."
+      class="input-editabile"
+      style="width: 100px ; background-color: #93c5e6;"
+    />
+  
+      <br><br><br><br>
+
       <select 
-        [(ngModel)]="valoreSelezionato"
-        name="valoreSelezionatoSelect"
-        class="combo"
-      >
-        <option *ngFor="let item of lista" [value]="item.valore">
+        [(ngModel)]="valoreSelezionato"  name="valoreSelezionatoSelect"  class="combo"   >
+        <br>
+      <option *ngFor="let item of lista" [value]="item.valore">
           {{ item.descrizione }}
         </option>
       </select>
     
-    </div>
-
+      
+      <select  [(ngModel)]="valoreSelezionatoImporto" name="importoSelezionatoSelect" class="combo" >
+      <br>
+        <option *ngFor="let item of listaImporto" [value]="item.valore">
+          {{ item.descrizione }}
+        </option>
+      </select>
     
 
-      <button type="submit">Login</button>
+    </div>
+
+
+    <button type="button" (click)="generaPdf()">
+       Esporta in PDF
+    </button>
+
+    <button [disabled]="f.invalid">
+      Salva
+    </button>
+
     </form>
+
   </div>
   

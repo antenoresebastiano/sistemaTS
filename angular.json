@@ -32,7 +32,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
+                  "maximumWarning": "800kB",
                   "maximumError": "1MB"
                 },
                 {
@@ -57,6 +57,7 @@
             "production": {
               "buildTarget": "sistemaTS:build:production"
             },
+            "baseHref": "/sistemaTS/",
             "development": {
               "buildTarget": "sistemaTS:build:development"
             }
