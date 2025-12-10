@@ -8,6 +8,30 @@ import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { MAT_DATE_FORMATS } from '@angular/material/core';
+import { Fattura, FattureService } from '../services/fatture.service';
+
+export const MY_DATE_FORMATS = {
+  parse: {
+    dateInput: 'dd MMMM yyyy',
+  },
+  display: {
+    dateInput: 'dd MMMM yyyy',
+    monthYearLabel: 'MMMM yyyy',
+    dateA11yLabel: 'dd MMMM yyyy',
+    monthYearA11yLabel: 'MMMM yyyy',
+  }
+};
+
+export interface Paziente {
+  id      : string;
+  Nome    : string;
+  Cognome : string;  
+  CodiceFiscale : string;
+  Indirizzo     : string;
+  Comune        : string;
+  NomeCompleto  : string;
+}
 
 @Component({
   selector: 'app-dashboard.component',
@@ -21,12 +45,21 @@ import autoTable from 'jspdf-autotable';
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
+  providers: [
+    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS }
+  ]
 })
+
 
 
 export class DashboardComponent implements OnInit {
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient , private fattureService: FattureService) {}
+  
+  fattureEmesse : any[] = [];
+
+  dataSelezionata: Date | null = new Date();
+  nextFattura : string = "0";
 
   username = 'Rosaci Carmela';
   codiceFiscaleMedico = 'RSCCML58A44F112E';
@@ -38,66 +71,95 @@ export class DashboardComponent implements OnInit {
   
   filtro = "A";
   listaOpzioni: any[] = [];
-  opzioneSelezionata : any[] = [];
+ 
+  listaPazientiFiltrata: Paziente[] = [];
+  listaPazienti: Paziente[] = [];
+  opzioneSelezionata: string = '';
+  
 
    valoreSelezionato: string = '';
    importoSelezionato : string = '100 €';
   
-  dataSelezionata: Date = new Date();
+//  dataSelezionata: Date = new Date();
   numFattura : string = "10";
   valoreSelezionatoImporto = "";
+  valoreSelezionatoIva = "0";
 
-
-  lista = [
-    { valore: 'Certificato Anamnestico per patente', descrizione: 'Certificato Anamnestico per patente' },
-    { valore: 'Certificato Invalidità', descrizione: 'Certificato Invalidità' },  
-  ];
-
+  listaCertificato: any[] = [];
 
   listaImporto = [
-    { valore: '100 €', descrizione: '100 €' },
+    { valore: '81.97 €', descrizione: '81.97 €' },
     { valore: '50 €', descrizione: '50 €' },
-    { valore: '130 €', descrizione: '130 €' },
+    { valore: '106.57 €', descrizione: '106.57 €' },
+  ];
+
+  listaIva = [
+    { valore: '0' , descrizione: '0'  },
+    { valore: '22', descrizione: '22' },
   ];
 
 
-    /*ngOnInit() {
-      this.http.get<any[]>('assets/clienti.json').subscribe((data: any[]) => {
-        this.listaOpzioni = data;
-      });
-    }*/
-
     ngOnInit() {
-      this.http.get<any[]>('assets/clienti.json').subscribe(data => {
-        this.listaOpzioni = data.map((item, index) => ({
-          ...item,
-          id: index + 1   // assegna un id univoco
-        }));
-      });
-    }
+        this.http.get<any[]>('assets/clienti.json').subscribe((data: any[]) => {
+         this.listaPazienti = data;
+         this.listaPazienti = data.map((paziente, index) => ({
+          ...paziente,
+              id: `P${String(index + 1).padStart(3, '0')}`
+          }));
+       
+        });
 
-    
-    onLogin() {
-      
-    }
 
+        this.http.get<any[]>('assets/certificati.json').subscribe((data: any[]) => {
+          this.listaCertificato = data;
+         });
  
-    get listaFiltrata() {
+     
+    }
+
+   
+       
+    listaFiltrata() {
       const f = (this.filtro || '').toLowerCase();
     
-      return this.listaOpzioni.filter(item =>
+      return this.listaPazientiFiltrata.filter(item =>
         ((item?.Cognome ?? '').toLowerCase().includes(f)) ||
         ((item?.Nome ?? '').toLowerCase().includes(f))
       );
     }
+    
+
+    listaFiltrataPazienti(): Paziente[] {
+      
+      const f = (this.filtro || '').toLowerCase();
+
+      return this.listaPazienti.filter(item =>
+        ((item?.Cognome ?? '').toLowerCase().includes(f)) ||
+        ((item?.Nome ?? '').toLowerCase().includes(f))
+      );
+
+    }
+
+    lsPazienti: Paziente[] = [];
+
+    filtraPazienti() {
+
+      const f = (this.filtro || '').toLowerCase();
+      
+      this.lsPazienti = this.listaPazienti.filter(item =>
+        ((item?.Cognome ?? '').toLowerCase().includes(f)) ||
+        ((item?.Nome ?? '').toLowerCase().includes(f))
+      );
+
+    }
 
 
-    get pazienteSelezionato() {
+    pazienteSelezionato() {
       return this.listaOpzioni.find(x => x.id == this.opzioneSelezionata);
     }
 
     onPazienteChange() {
-      const paziente = this.listaOpzioni.find(p => p.id == this.opzioneSelezionata);
+      const paziente = this.lsPazienti.find(p => p.id == this.opzioneSelezionata);
       
       console.log("Paziente selezionato:", paziente); // DEBUG
     
@@ -106,30 +168,35 @@ export class DashboardComponent implements OnInit {
         this.indirizzoPaziente = paziente.Indirizzo + " " + paziente.Comune;
         this.nomeCompletoPaziente = paziente.NomeCompleto
       }
+
     }
 
     generaPdf() {
       const doc = new jsPDF();
-
-      // Titolo
+      let nuovaFattura : Fattura = this.getFattura();
+ 
+        // Titolo
       doc.setFontSize(16);
       doc.text('Fattura', 10, 10);
-  
-      // Dati base
+        // Dati base
       doc.setFontSize(12);
-      doc.text(`Numero fattura: ${this.numFattura}         ${this.dataSelezionata.toLocaleDateString()}`  , 10, 20);
-
+      doc.text(`Numero fattura: ${this.numFattura} del  ${nuovaFattura.data}`  , 10, 20);
       doc.text(`Dott.ssa : ${this.username}  ${this.codiceFiscaleMedico}` , 10, 30);
       doc.text(`${this.indirizzoMedico} ` , 10, 40);
-      
-      
       
       doc.text(`Paziente: ${this.nomeCompletoPaziente}`, 10, 70);
       doc.text(`Codice Fiscale: ${this.codiceFiscalePaziente}`, 10, 80);
       doc.text(`Indirizzo: ${this.indirizzoPaziente}`, 10, 90);
 
       doc.text(` ${this.valoreSelezionato}`, 10, 110);
-      doc.text(`Importo  ${this.importoSelezionato}`, 10, 120);
+      
+      doc.text(`Imponibile : €  ${nuovaFattura.imponibile} `, 10, 130);
+      doc.text(`iva ${nuovaFattura.ivaPerc} %`, 80, 130);
+
+      //importoIva = Math.round(importoIva* 100)/100;
+      doc.text(`: ${nuovaFattura.iva} €`, 99, 130);
+
+      doc.text(`Totale fattura:  ${nuovaFattura.importo} €`, 10, 140);
       //doc.text(`Totale: ${this.totale} €`, 10, 50);
   
       // (opzionale) tabella
@@ -148,5 +215,50 @@ export class DashboardComponent implements OnInit {
 
     }
 
+    getFattura() : Fattura {
+      let ivaPerc : number = Number(this.valoreSelezionatoIva);   
+      let imponibile: number = Number(this.valoreSelezionatoImporto.replace("€", "").trim());
+      
+      let ivaSuImponibile: number = ivaPerc > 0 ? (Math.trunc(imponibile) * ivaPerc)/100: 0
+
+      const nuovaFattura = {
+        id          : crypto.randomUUID(),
+        numero      : this.numFattura,
+        data        : this.dataSelezionata?.toLocaleDateString() ?? "",
+        imponibile  : imponibile,
+        importo     : Math.ceil(imponibile + ivaSuImponibile),
+        paziente    : this.nomeCompletoPaziente,
+        iva         : ivaSuImponibile,
+        ivaPerc     : ivaPerc
+      };
+
+      return nuovaFattura;
+
+    }
+
+    salvaFattura() {
+      
+     let nuovaFattura = this.getFattura();
+     this.fattureService.aggiungiFattura(nuovaFattura);
     
+    }
+
+    scaricaArchivioFatture() {
+      const fatture = this.fattureService.getFatture();
+    
+      const blob = new Blob(
+        [JSON.stringify(fatture, null, 2)],
+        { type: 'application/json' }
+      );
+    
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'fatture.json';
+      a.click();
+    
+      URL.revokeObjectURL(url);
+    }
+
 }

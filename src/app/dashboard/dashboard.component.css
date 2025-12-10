@@ -48,18 +48,29 @@
   
   .row {
     display: flex;
-    gap: 40px; /* aumenta la distanza */
+    gap: 10px; /* aumenta la distanza */
     align-items: center;
+    grid-template-columns: 1fr 100px;
+    column-gap: 20px;    
   }
   
   
-  .field {
+  .field1 {
     display: flex;
-    width: 450px; /* aumenta la larghezza della colonna */
+    width: 250px; /* aumenta la larghezza della colonna */
+    display: flex;
+    flex-direction: column;
+    gap: 4px; /* avvicina label e input */
   }
-  .field label {
-    width: 200px;
+
+  .field1 label {
+    width: 120px;
     display: inline-block;
+    
+  }
+
+  .field input {
+    background-color: rgb(136, 179, 213); 
   }
 
   mat-form-field {
@@ -67,3 +78,31 @@
     padding: 4px;
     border-radius: 4px;
   }
+
+  .field {
+    display: grid;
+    width: 550px; 
+    grid-template-columns: 120px 1fr; /* 150px per la label, input a destra */
+    align-items: center;
+    column-gap: 10px; /* distanza tra label e input */
+    flex-wrap: nowrap; /* <‑‑ impedisce di andare a capo */
+  }
+  
+  .field label {
+    margin: 0;
+    white-space: nowrap; /* evita che la label vada a capo */
+
+  }
+
+
+  .small-date {
+    width: 180px;
+    min-width: 120px; /* opzionale */
+  }
+
+  
+  button[disabled] {
+    opacity: 0.5;          /* lo rende visibile ma “spento” */
+    cursor: not-allowed;   /* cursore disabilitato */
+  }
+  
