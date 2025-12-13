@@ -1,4 +1,4 @@
-import { Component , OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component , OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -10,6 +10,8 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { MAT_DATE_FORMATS } from '@angular/material/core';
 import { Fattura, FattureService } from '../services/fatture.service';
+import { endWith } from 'rxjs';
+import Swal from 'sweetalert2';
 
 export const MY_DATE_FORMATS = {
   parse: {
@@ -31,6 +33,7 @@ export interface Paziente {
   Indirizzo     : string;
   Comune        : string;
   NomeCompleto  : string;
+
 }
 
 @Component({
@@ -54,12 +57,15 @@ export interface Paziente {
 
 export class DashboardComponent implements OnInit {
 
-  constructor(private http: HttpClient , private fattureService: FattureService) {}
+  constructor(private cd: ChangeDetectorRef , private http: HttpClient , private fattureService: FattureService) {}
   
+  pbSalvaFattura : boolean = false;
   fattureEmesse : any[] = [];
 
-  dataSelezionata: Date | null = new Date();
-  nextFattura : string = "0";
+//  dataSelezionata: Date | null = new Date();
+  dataSelezionata: string = new Date().toISOString().substring(0, 10);
+
+  nextFattura : number = 0;
 
   username = 'Rosaci Carmela';
   codiceFiscaleMedico = 'RSCCML58A44F112E';
@@ -75,17 +81,16 @@ export class DashboardComponent implements OnInit {
   listaPazientiFiltrata: Paziente[] = [];
   listaPazienti: Paziente[] = [];
   opzioneSelezionata: string = '';
-  
 
-   valoreSelezionato: string = '';
-   importoSelezionato : string = '100 €';
-  
-//  dataSelezionata: Date = new Date();
-  numFattura : string = "10";
+  valoreSelezionato: string = '';
+  importoSelezionato : string = '100 €';
+
   valoreSelezionatoImporto = "";
   valoreSelezionatoIva = "0";
 
   listaCertificato: any[] = [];
+
+  lsPazienti: Paziente[] = [];
 
   listaImporto = [
     { valore: '81.97 €', descrizione: '81.97 €' },
@@ -109,11 +114,11 @@ export class DashboardComponent implements OnInit {
        
         });
 
-
         this.http.get<any[]>('assets/certificati.json').subscribe((data: any[]) => {
           this.listaCertificato = data;
          });
- 
+
+         this.nuovaFattura(); 
      
     }
 
@@ -139,8 +144,7 @@ export class DashboardComponent implements OnInit {
       );
 
     }
-
-    lsPazienti: Paziente[] = [];
+  
 
     filtraPazienti() {
 
@@ -180,7 +184,7 @@ export class DashboardComponent implements OnInit {
       doc.text('Fattura', 10, 10);
         // Dati base
       doc.setFontSize(12);
-      doc.text(`Numero fattura: ${this.numFattura} del  ${nuovaFattura.data}`  , 10, 20);
+      doc.text(`Numero fattura: ${this.nextFattura} del  ${nuovaFattura.data}`  , 10, 20);
       doc.text(`Dott.ssa : ${this.username}  ${this.codiceFiscaleMedico}` , 10, 30);
       doc.text(`${this.indirizzoMedico} ` , 10, 40);
       
@@ -211,54 +215,121 @@ export class DashboardComponent implements OnInit {
       });
   
       // Scarica il PDF
-      doc.save(`fattura_${this.numFattura || 'senza_numero'}.pdf`);
+      doc.save(`fattura_${this.nextFattura || 'senza_numero'}.pdf`);
 
     }
 
     getFattura() : Fattura {
       let ivaPerc : number = Number(this.valoreSelezionatoIva);   
       let imponibile: number = Number(this.valoreSelezionatoImporto.replace("€", "").trim());
-      
       let ivaSuImponibile: number = ivaPerc > 0 ? (Math.trunc(imponibile) * ivaPerc)/100: 0
 
       const nuovaFattura = {
         id          : crypto.randomUUID(),
-        numero      : this.numFattura,
-        data        : this.dataSelezionata?.toLocaleDateString() ?? "",
+        numero      : this.nextFattura,
+        //data        : this.dataSelezionata?.toLocaleDateString() ?? "",
+        data        : this.dataSelezionata ?? "",
         imponibile  : imponibile,
         importo     : Math.ceil(imponibile + ivaSuImponibile),
         paziente    : this.nomeCompletoPaziente,
         iva         : ivaSuImponibile,
-        ivaPerc     : ivaPerc
+        ivaPerc     : ivaPerc,
+        codiceFiscalePaziente : this.codiceFiscalePaziente
       };
 
       return nuovaFattura;
 
     }
 
+
+
     salvaFattura() {
+      let nuovaFattura = this.getFattura();
+      this.fattureService.checkEsistenzaFattura(nuovaFattura.numero).subscribe(esiste => {
+        if (esiste) {
+            //alert("Fattura n. " + nuovaFattura.numero + " esistente.")
+            Swal.fire('Attenzione!', `Fattura ${nuovaFattura.numero} esistente.`, 'info');          
+        } else {
+                    
+          /*if (confirm("Sei sicuro di voler salvare questa fattura?")) {
+            let nuovaFattura = this.getFattura();
+            var listfatture = this.fattureService.insertNewFattura(nuovaFattura);
+              listfatture.subscribe(valore  => {
+                console.log('Valore ricevuto:', valore);
+            });
+            this.pbSalvaFattura  = false;
+          }*/
+          Swal.fire({ title: 'Sei sicuro?',text: `Vuoi inserire la fattura ${nuovaFattura.numero}?`,
+                      icon: 'warning',showCancelButton: true,confirmButtonText: 'Sì, inserisci',cancelButtonText: 'Annulla'
+          }).then(result => {
+            let nuovaFattura = this.getFattura();
+            var listfatture = this.fattureService.insertNewFattura(nuovaFattura);
+              listfatture.subscribe(valore  => {
+                console.log('Valore ricevuto:', valore);
+            });
+            this.pbSalvaFattura  = false;
+
+          });
+
+        }
+      });
+     
+     
       
-     let nuovaFattura = this.getFattura();
-     this.fattureService.aggiungiFattura(nuovaFattura);
-    
     }
 
     scaricaArchivioFatture() {
-      const fatture = this.fattureService.getFatture();
-    
-      const blob = new Blob(
-        [JSON.stringify(fatture, null, 2)],
-        { type: 'application/json' }
-      );
-    
-      const url = URL.createObjectURL(blob);
       
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'fatture.json';
-      a.click();
-    
-      URL.revokeObjectURL(url);
+      var listfatture = this.fattureService
+            ._getListaFatture().subscribe(valore => {
+              console.log('Valore ricevuto:', valore);
+            });
+  
+
+      /*this.fattureService.getFatture().subscribe(fatture => {
+
+        const blob = new Blob(
+          [JSON.stringify(fatture, null, 2)],
+          { type: 'application/json' }
+        );
+      
+        console.log(JSON.stringify(fatture, null, 2));
+        
+        
+        const url = URL.createObjectURL(blob);
+      
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'fatture.json';
+        a.click();
+      
+        URL.revokeObjectURL(url);
+
+      });*/
+
+
     }
 
-}
+    handleNumero( numero : string ) {
+      this.nextFattura = (parseInt(numero) + 1);
+      this.cd.detectChanges();
+    }
+
+   
+
+    async nuovaFattura() {
+        var numero = await this.fattureService.getNextNumFattura().toPromise() ?? 0;
+
+        this.nextFattura = numero 
+        this.codiceFiscalePaziente = "";
+        this.indirizzoPaziente = "";
+        this.nomeCompletoPaziente = "";
+
+        this.cd.detectChanges();
+    }
+   
+    
+    
+
+ }
+ 

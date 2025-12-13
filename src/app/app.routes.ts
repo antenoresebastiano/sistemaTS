@@ -8,7 +8,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 //import { UtentiComponent } from './utenti/utenti.component';
 //import { ReportComponent } from './report/report.component';
 
-
+import { ListaFattureComponent } from './lista-fatture/lista-fatture.component';
 
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },
@@ -18,7 +18,7 @@ export const routes: Routes = [
       component: Home,
       children: [
         { path: 'dashboard', component: DashboardComponent },
-  //      { path: 'utenti', component: UtentiComponent },
+        { path: 'listaFatture'   , component: ListaFattureComponent },
   //      { path: 'report', component: ReportComponent },
         { path: '', redirectTo: 'login', pathMatch: 'full' }
       ]

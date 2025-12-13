@@ -1,13 +1,26 @@
 <div class="login-container">
     <h2>Gestione Fatture</h2>
-    
+        
     <form >
       <div class="row">
-        <label style="width: 140px " for="numFattura"> Fattura N. </label>
+        <label style="width: 140px " for="nextFattura"> Fattura N. </label>
         <div class="field">
-          <input  id="numFattura" disabled  type="text" [(ngModel)]="nextFattura"
-            name="numFattura"  style="width: 140px ; background-color: #93c5e6;"  border-radius: 4px;  required />
-        </div>
+          <input  id="nextFattura" 
+                  type="text" 
+                  [(ngModel)]="nextFattura"
+                  name="nextFattura"  
+                  style="width: 140px ; background-color: #93c5e6;"  
+                  border-radius: 4px;  required />
+         </div>
+          
+          <label style="width: 140px " for="dataSelezionata"> Data </label>
+          <div class="field">
+            <input type="date" 
+            name="dataSelezionata"  
+            [(ngModel)]="dataSelezionata" 
+            class="date-small">
+          </div>
+
       </div>
 
       <br>
@@ -26,13 +39,16 @@
   
     <br> <br>
 
-    <mat-form-field appearance="fill" class="small-date">
+   <!-- <mat-form-field appearance="fill" class="small-date">
       <mat-label>Data</mat-label>
       <input matInput [matDatepicker]="picker" [(ngModel)]="dataSelezionata">
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>
-    </mat-form-field>
+    </mat-form-field> -->
 
+   
+
+    
 
 </div>
 
@@ -66,21 +82,35 @@
     <div class="row">
       <div class="field">
         <label>Nome Completo</label>
-        <input type="text" [(ngModel)]="nomeCompletoPaziente" name ="nomeCompletoPaziente" required >
+        
+        <input type="text" 
+            [(ngModel)]="nomeCompletoPaziente" 
+            name ="nomeCompletoPaziente" 
+            required >
       </div>
     </div>
         
     <div class="row">
       <div class="field">
         <label>Codice Fiscale</label>
-        <input type="text" [value]="codiceFiscalePaziente"  required>
+        
+        <input type="text" 
+            [(ngModel)]="codiceFiscalePaziente" 
+            name="codiceFiscalePaziente"
+            required >
       </div>
     </div>
+
+    
 
     <div class="row">
       <div class="field">
         <label>Indirizzo</label>
-        <input type="text" [value]="indirizzoPaziente"  required>
+
+        <input type="text" 
+           [(ngModel)]="indirizzoPaziente"
+           name="indirizzoPaziente" 
+           required>
       </div>
     </div>
 
@@ -164,16 +194,9 @@
     <button mat-raised-button color="primary"
       type="button"
       [disabled]="f.invalid"
-      (click)="salvaFattura()">
+      (click)="salvaFattura()" >
         salva
     </button>
-
-  
-  <button mat-raised-button color="primary"
-    type="button"
-    (click)="scaricaArchivioFatture()">
-      Scarico Fatture
-  </button>
 
 
 

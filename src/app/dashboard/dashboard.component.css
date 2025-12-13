@@ -106,3 +106,15 @@
     cursor: not-allowed;   /* cursore disabilitato */
   }
   
+  .small-date .mat-form-field-wrapper {
+    padding-bottom: 0 !important;
+  }
+  
+  .small-date .mat-form-field-flex {
+    height: 40px; /* più piccolo */
+  }
+  
+  .small-date .mat-input-element {
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
