@@ -27,6 +27,7 @@ export interface Fattura {
 
 export class FattureService {
   // modifica remote main
+  // modifica locale main
   constructor(private http: HttpClient) {}
 
   private key = 'fatture';
