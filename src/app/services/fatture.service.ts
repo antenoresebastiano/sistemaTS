@@ -31,7 +31,7 @@ export class FattureService {
 
   private key = 'fatture';
   private url = 'assets/fatture.json';
-  private urlFatture = 'http://localhost:3000/fatture'; //'https://wsfatture.onrender.com/fatture';   //
+  private urlFatture = 'https://wsfatture.onrender.com/fatture';   // 'http://localhost:3000/fatture'; //
    
   
   private encryptObject(fattura: Fattura) {
