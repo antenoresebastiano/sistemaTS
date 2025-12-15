@@ -1,9 +1,9 @@
-import { ChangeDetectorRef, Component , OnInit, signal } from '@angular/core';
+import { ChangeDetectorRef,  OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FattureService } from '../services/fatture.service';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef } from 'ag-grid-community';
+import { ColDef,  GridOptions } from 'ag-grid-community';
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { Fattura } from '../services/fatture.service';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
@@ -12,14 +12,17 @@ import { ValueGetterParams } from "ag-grid-community";
 import { MatSnackBar } from '@angular/material/snack-bar';
 import Swal from 'sweetalert2';
 import { themeQuartz } from 'ag-grid-community';
-
-import { FatturaData, gridOptions } from "./gridOptions";
+import { FatturaData, gridOptions , themeGrigliaPosizioniInEssere } from "./gridOptions";
+import { Component } from '@angular/core';
+import { createTheme } from 'ag-grid-community';
 
 import { AllEnterpriseModule } from "ag-grid-enterprise";
 
 
 
+
 ModuleRegistry.registerModules([AllCommunityModule]);
+ModuleRegistry.registerModules([AllEnterpriseModule]);
 
 
 interface IRow {
@@ -37,13 +40,20 @@ interface IRow {
   imports: [
     CommonModule,
     AgGridAngular,
-    FormsModule
+    FormsModule 
+    
+    
   ],
   templateUrl: './lista-fatture.component.html',
   styleUrls: ['./lista-fatture.component.css']
 })
+
+  
 export class ListaFattureComponent implements OnInit {
 
+      
+  themeGrigliaPosizioniInEssere = themeGrigliaPosizioniInEssere;
+  
   
   rowDataFattura: FatturaData[] = [];
   //rowData = signal<FatturaData[]>([]);
@@ -55,13 +65,24 @@ export class ListaFattureComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private snack: MatSnackBar
+    
   ) {}
+
+
 
   //columnDefs = gridOptions.columnDefs;
   colDefsFattura = gridOptions.columnDefs;
-  gridOptions = gridOptions;
- 
- 
+  //gridOptions = gridOptions;
+  gridOptions: GridOptions = {
+    ...gridOptions,                     // conserva tutte le proprietà già definite
+    context: { componentParent: this }  // aggiunge il contesto per i cellRenderer
+  };  
+
+  /*gridOptions1: GridOptions = {
+    context: { componentParent: this }
+  }*/
+
+  
   ngOnInit(): void {
 
     var listfatture = 
@@ -100,38 +121,18 @@ export class ListaFattureComponent implements OnInit {
 
   }
   
-  PosizioniSottoSogliaTheme = themeQuartz.withParams({
-    accentColor: "#087AD1",
-          backgroundColor: "#FFFFFF",
-          borderColor: "#D7E2E6",
-          borderRadius: 2,
-          browserColorScheme: "light",
-          cellHorizontalPaddingScale: 0.7,
-          chromeBackgroundColor: {
-              ref: "backgroundColor"
-          },
-          columnBorder: false,
-          fontFamily: {
-              googleFont: "Inter"
-          },
-          fontSize: 13,
-          foregroundColor: "#555B62",
-          headerBackgroundColor: "#BEADF1",
-          headerFontSize: 13,
-          headerFontWeight: 400,
-          headerTextColor: "#090206E8",
-          rowBorder: true,
-          rowVerticalPaddingScale: 0.8,
-          sidePanelBorder: true,
-          spacing: 6,
-          wrapperBorder: false,
-          wrapperBorderRadius: 2
-  });
 
+  /*gridOptions: GridOptions = {
+    rowSelection: 'single',
+    suppressRowClickSelection: false,
+    // altre opzioni...
+  };*/
+  
   /*gridOptions = {
     context: { componentParent: this }
   };*/
-  
+    
+
   modifica(fattura: Fattura) {
     console.log("Modifica fattura:", fattura);
   }

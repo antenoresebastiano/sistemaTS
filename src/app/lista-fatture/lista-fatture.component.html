@@ -4,16 +4,14 @@
 </button>
 
 
-  <div class="content" style="width: 100%; height: 100%;">
-    <!-- The AG Grid component, with Dimensions, CSS Theme, Row Data, and Column Definition -->
-    <ag-grid-angular
-      style="width: 100%; height: 100%;"
-      class="ag-theme-alpine"
-      [rowData]="rowDataFattura"
-      [columnDefs]="colDefsFattura"
-      [defaultColDef]="defaultColDef"
-      [gridOptions]="gridOptions"
-      (gridReady)="onGridReady($event)"
-      [theme]="PosizioniSottoSogliaTheme"
-    />
-  </div>
+<ag-grid-angular
+  style="width:100%; height:100%;"
+  [rowData]="rowDataFattura"
+  [columnDefs]="colDefsFattura"
+  [defaultColDef]="defaultColDef"
+  [gridOptions]="gridOptions"
+  (gridReady)="onGridReady($event)"
+  [theme]="themeGrigliaPosizioniInEssere">
+</ag-grid-angular>
+
+  

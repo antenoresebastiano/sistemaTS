@@ -29,7 +29,7 @@ export class FattureService {
 
   constructor(private http: HttpClient) {}
 
-   private key = 'fatture';
+  private key = 'fatture';
   private url = 'assets/fatture.json';
   private urlFatture = 'http://localhost:3000/fatture'; //'https://wsfatture.onrender.com/fatture';   //
    
@@ -54,11 +54,15 @@ export class FattureService {
   }
 
   private decryptFattura(fattura : Fattura) {
-    return {
+    /*return {
       ...fattura,
       paziente: this.decryptField(fattura.paziente),
       codiceFiscalePaziente: this.decryptField(fattura.codiceFiscalePaziente)
-    };
+    };*/
+    var appo = {...fattura};
+    appo.codiceFiscalePaziente = this.decryptField(appo.codiceFiscalePaziente) 
+    
+    return appo;
   }        
    
   
