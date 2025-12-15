@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component , OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component , OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FattureService } from '../services/fatture.service';
@@ -11,6 +11,13 @@ import { filter } from 'rxjs/operators';
 import { ValueGetterParams } from "ag-grid-community";
 import { MatSnackBar } from '@angular/material/snack-bar';
 import Swal from 'sweetalert2';
+import { themeQuartz } from 'ag-grid-community';
+
+import { FatturaData, gridOptions } from "./gridOptions";
+
+import { AllEnterpriseModule } from "ag-grid-enterprise";
+
+
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -22,16 +29,6 @@ interface IRow {
     electric: boolean;
   }
   
-  interface IRowFattura {
-    numero: number;
-    paziente: string;
-    importo: number;
-    imponibile: number;
-    codiceFiscalePaziente : string;
-    data : string;
-    iva : number;
-    ivaPerc : number;
-  }
 
 
 @Component({
@@ -47,7 +44,10 @@ interface IRow {
 })
 export class ListaFattureComponent implements OnInit {
 
-    rowDataFattura: IRowFattura[] = [];
+  
+  rowDataFattura: FatturaData[] = [];
+  //rowData = signal<FatturaData[]>([]);
+  rowData : FatturaData[] = [];
 
   constructor(
     private cd: ChangeDetectorRef,
@@ -57,6 +57,10 @@ export class ListaFattureComponent implements OnInit {
     private snack: MatSnackBar
   ) {}
 
+  //columnDefs = gridOptions.columnDefs;
+  colDefsFattura = gridOptions.columnDefs;
+  gridOptions = gridOptions;
+ 
  
   ngOnInit(): void {
 
@@ -65,8 +69,11 @@ export class ListaFattureComponent implements OnInit {
             .subscribe(fatture => {
                       console.log('Fatture decriptate:', fatture);      
                       this.rowDataFattura = fatture;
+                      //this.rowData = fatture;
                       this.cd.detectChanges();
               });
+
+
         
      // ✅ 1. Leggo i parametri della route all'inizializzazione
      const id = this.route.snapshot.params['id'];
@@ -78,7 +85,7 @@ export class ListaFattureComponent implements OnInit {
           this.fattureService._getListaFatture()
               .subscribe(valore => {
                   this.rowDataFattura = valore;
-                  this.cd.detectChanges();
+                  //this.cd.detectChanges();
                 });
     
      });
@@ -93,9 +100,37 @@ export class ListaFattureComponent implements OnInit {
 
   }
   
-  gridOptions = {
+  PosizioniSottoSogliaTheme = themeQuartz.withParams({
+    accentColor: "#087AD1",
+          backgroundColor: "#FFFFFF",
+          borderColor: "#D7E2E6",
+          borderRadius: 2,
+          browserColorScheme: "light",
+          cellHorizontalPaddingScale: 0.7,
+          chromeBackgroundColor: {
+              ref: "backgroundColor"
+          },
+          columnBorder: false,
+          fontFamily: {
+              googleFont: "Inter"
+          },
+          fontSize: 13,
+          foregroundColor: "#555B62",
+          headerBackgroundColor: "#BEADF1",
+          headerFontSize: 13,
+          headerFontWeight: 400,
+          headerTextColor: "#090206E8",
+          rowBorder: true,
+          rowVerticalPaddingScale: 0.8,
+          sidePanelBorder: true,
+          spacing: 6,
+          wrapperBorder: false,
+          wrapperBorderRadius: 2
+  });
+
+  /*gridOptions = {
     context: { componentParent: this }
-  };
+  };*/
   
   modifica(fattura: Fattura) {
     console.log("Modifica fattura:", fattura);
@@ -140,40 +175,7 @@ export class ListaFattureComponent implements OnInit {
 
   }
   
-
-  colDefsFattura: ColDef<IRowFattura>[] = [
-    { field: "numero" , headerName: "Num. Fattura", width: 10 , flex: 1 },
-    { field: "data" },
-    { field: "paziente" },
-    { field: "codiceFiscalePaziente" },
-    { field: "imponibile" , cellStyle: { textAlign: "right" } },
-    { field: "ivaPerc" , headerName: "iva %" , cellStyle: { textAlign: "right" }  },
-    { field: "iva" , headerName: "importo iva" , cellStyle: { textAlign: "right" } },
-    { field: "importo" , headerName: "Importo Fattura" , cellStyle: { textAlign: "right" } } , 
-    {
-      headerName: "Azioni",
-      cellRenderer: (params: { context: { componentParent: { modifica: (arg0: any) => any; elimina: (arg0: any) => any; }; }; data: any; }) => {
-        const container = document.createElement("div");
-    
-        const btnEdit = document.createElement("button");
-        btnEdit.innerText = "✏️";
-        btnEdit.addEventListener("click", () => params.context.componentParent.modifica(params.data));
-    
-        const btnDelete = document.createElement("button");
-        btnDelete.innerText = "🗑️";
-        btnDelete.addEventListener("click", () => params.context.componentParent.elimina(params.data));
-    
-        container.appendChild(btnEdit);
-        container.appendChild(btnDelete);
-    
-        return container;
-      },
-      width: 120
-    }
-    
-
-  ];
-  
+ 
  gridApi: any;
 
 onGridReady(params: any) {

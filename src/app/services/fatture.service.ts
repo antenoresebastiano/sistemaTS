@@ -29,7 +29,7 @@ export class FattureService {
 
   constructor(private http: HttpClient) {}
 
-  private key = 'fatture';
+   private key = 'fatture';
   private url = 'assets/fatture.json';
   private urlFatture = 'http://localhost:3000/fatture'; //'https://wsfatture.onrender.com/fatture';   //
    
