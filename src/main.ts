@@ -6,6 +6,7 @@ import { LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeIt from '@angular/common/locales/it';
 
+// modifica da local su testAgEnterprice
 
 registerLocaleData(localeIt);
 /*bootstrapApplication(App, appConfig {
