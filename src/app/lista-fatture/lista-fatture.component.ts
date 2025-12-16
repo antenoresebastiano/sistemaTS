@@ -1,9 +1,9 @@
-import { ChangeDetectorRef, Component , OnInit } from '@angular/core';
+import { ChangeDetectorRef,  OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FattureService } from '../services/fatture.service';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef } from 'ag-grid-community';
+import { ColDef,  GridOptions } from 'ag-grid-community';
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { Fattura } from '../services/fatture.service';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
@@ -11,8 +11,18 @@ import { filter } from 'rxjs/operators';
 import { ValueGetterParams } from "ag-grid-community";
 import { MatSnackBar } from '@angular/material/snack-bar';
 import Swal from 'sweetalert2';
+import { themeQuartz } from 'ag-grid-community';
+import { FatturaData, gridOptions , themeGrigliaPosizioniInEssere } from "./gridOptions";
+import { Component } from '@angular/core';
+import { createTheme } from 'ag-grid-community';
+
+import { AllEnterpriseModule } from "ag-grid-enterprise";
+
+
+
 
 ModuleRegistry.registerModules([AllCommunityModule]);
+ModuleRegistry.registerModules([AllEnterpriseModule]);
 
 
 interface IRow {
@@ -22,16 +32,6 @@ interface IRow {
     electric: boolean;
   }
   
-  interface IRowFattura {
-    numero: number;
-    paziente: string;
-    importo: number;
-    imponibile: number;
-    codiceFiscalePaziente : string;
-    data : string;
-    iva : number;
-    ivaPerc : number;
-  }
 
 
 @Component({
@@ -40,14 +40,24 @@ interface IRow {
   imports: [
     CommonModule,
     AgGridAngular,
-    FormsModule
+    FormsModule 
+    
+    
   ],
   templateUrl: './lista-fatture.component.html',
   styleUrls: ['./lista-fatture.component.css']
 })
+
+  
 export class ListaFattureComponent implements OnInit {
 
-    rowDataFattura: IRowFattura[] = [];
+      
+  themeGrigliaPosizioniInEssere = themeGrigliaPosizioniInEssere;
+  
+  
+  rowDataFattura: FatturaData[] = [];
+  //rowData = signal<FatturaData[]>([]);
+  rowData : FatturaData[] = [];
 
   constructor(
     private cd: ChangeDetectorRef,
@@ -55,9 +65,24 @@ export class ListaFattureComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private snack: MatSnackBar
+    
   ) {}
 
- 
+
+
+  //columnDefs = gridOptions.columnDefs;
+  colDefsFattura = gridOptions.columnDefs;
+  //gridOptions = gridOptions;
+  gridOptions: GridOptions = {
+    ...gridOptions,                     // conserva tutte le proprietà già definite
+    context: { componentParent: this }  // aggiunge il contesto per i cellRenderer
+  };  
+
+  /*gridOptions1: GridOptions = {
+    context: { componentParent: this }
+  }*/
+
+  
   ngOnInit(): void {
 
     var listfatture = 
@@ -65,8 +90,11 @@ export class ListaFattureComponent implements OnInit {
             .subscribe(fatture => {
                       console.log('Fatture decriptate:', fatture);      
                       this.rowDataFattura = fatture;
+                      //this.rowData = fatture;
                       this.cd.detectChanges();
               });
+
+
         
      // ✅ 1. Leggo i parametri della route all'inizializzazione
      const id = this.route.snapshot.params['id'];
@@ -78,7 +106,7 @@ export class ListaFattureComponent implements OnInit {
           this.fattureService._getListaFatture()
               .subscribe(valore => {
                   this.rowDataFattura = valore;
-                  this.cd.detectChanges();
+                  //this.cd.detectChanges();
                 });
     
      });
@@ -93,10 +121,18 @@ export class ListaFattureComponent implements OnInit {
 
   }
   
-  gridOptions = {
-    context: { componentParent: this }
-  };
+
+  /*gridOptions: GridOptions = {
+    rowSelection: 'single',
+    suppressRowClickSelection: false,
+    // altre opzioni...
+  };*/
   
+  /*gridOptions = {
+    context: { componentParent: this }
+  };*/
+    
+
   modifica(fattura: Fattura) {
     console.log("Modifica fattura:", fattura);
   }
@@ -140,40 +176,7 @@ export class ListaFattureComponent implements OnInit {
 
   }
   
-
-  colDefsFattura: ColDef<IRowFattura>[] = [
-    { field: "numero" , headerName: "Num. Fattura", width: 10 , flex: 1 },
-    { field: "data" },
-    { field: "paziente" },
-    { field: "codiceFiscalePaziente" },
-    { field: "imponibile" , cellStyle: { textAlign: "right" } },
-    { field: "ivaPerc" , headerName: "iva %" , cellStyle: { textAlign: "right" }  },
-    { field: "iva" , headerName: "importo iva" , cellStyle: { textAlign: "right" } },
-    { field: "importo" , headerName: "Importo Fattura" , cellStyle: { textAlign: "right" } } , 
-    {
-      headerName: "Azioni",
-      cellRenderer: (params: { context: { componentParent: { modifica: (arg0: any) => any; elimina: (arg0: any) => any; }; }; data: any; }) => {
-        const container = document.createElement("div");
-    
-        const btnEdit = document.createElement("button");
-        btnEdit.innerText = "✏️";
-        btnEdit.addEventListener("click", () => params.context.componentParent.modifica(params.data));
-    
-        const btnDelete = document.createElement("button");
-        btnDelete.innerText = "🗑️";
-        btnDelete.addEventListener("click", () => params.context.componentParent.elimina(params.data));
-    
-        container.appendChild(btnEdit);
-        container.appendChild(btnDelete);
-    
-        return container;
-      },
-      width: 120
-    }
-    
-
-  ];
-  
+ 
  gridApi: any;
 
 onGridReady(params: any) {

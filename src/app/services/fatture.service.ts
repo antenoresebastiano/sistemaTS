@@ -55,11 +55,15 @@ export class FattureService {
   }
 
   private decryptFattura(fattura : Fattura) {
-    return {
+    /*return {
       ...fattura,
       paziente: this.decryptField(fattura.paziente),
       codiceFiscalePaziente: this.decryptField(fattura.codiceFiscalePaziente)
-    };
+    };*/
+    var appo = {...fattura};
+    appo.codiceFiscalePaziente = this.decryptField(appo.codiceFiscalePaziente) 
+    
+    return appo;
   }        
    
   

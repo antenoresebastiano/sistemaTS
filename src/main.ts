@@ -5,6 +5,13 @@ import { provideHttpClient } from '@angular/common/http';
 import { LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeIt from '@angular/common/locales/it';
+import { AgGridModule } from 'ag-grid-angular';
+import { GridOptions  } from "ag-grid-community";
+import "ag-grid-enterprise"
+// modifica da local su testAgEnterprice
+import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
+
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 
 registerLocaleData(localeIt);
