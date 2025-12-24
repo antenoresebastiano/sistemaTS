@@ -1,16 +1,12 @@
 <p>report works!</p>
 
 
-<button mat-raised-button color="primary"
-type="button"
-(click)="increment()" >
- increment
-</button>
+<button (click)="download()">Scarica db.json</button>
+<br><br>
+
+<input type="file" accept=".json" (change)="onFileSelected($event)">
+<button (click)="upload()">Aggiorna servizio</button>
 
 
-<p>Valore del counter: {{ count() }}</p>
 
 
-<p>Valore del double: {{ double() }}</p>
-
-<p>Valore test: {{ test }}</p>

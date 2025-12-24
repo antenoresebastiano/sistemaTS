@@ -267,7 +267,7 @@ export class DashboardComponent implements OnInit {
           }).then(result => {
             let nuovaFattura = this.getFattura();
             var listfatture = this.fattureService.insertNewFattura(nuovaFattura);
-              listfatture.subscribe(valore  => {
+              listfatture?.subscribe(valore  => {
                 console.log('Valore ricevuto:', valore);
             });
             this.pbSalvaFattura  = false;

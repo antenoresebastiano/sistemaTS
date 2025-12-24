@@ -1,5 +1,5 @@
 import { signal, Component ,  computed, effect } from '@angular/core';
-
+import { ApiService } from '../services/api.service';
 
 
 @Component({
@@ -13,7 +13,7 @@ import { signal, Component ,  computed, effect } from '@angular/core';
 export class ReportComponent {
 
 
-   test = 12;
+  test = 12;
   count = signal(0);
   double = computed(() => this.count() * 2);
 
@@ -22,13 +22,40 @@ export class ReportComponent {
   category = signal<string | null>(null);
   maxPrice = signal<number | null>(null);
   onlyAvailable = signal(false);
-
+  selectedFile: File | null = null;
   
-  constructor() {
+  constructor( private api: ApiService) {
     effect(() => console.log('count changed:', this.count()));
   }
 
 
+   download() {
+    this.api.downloadDb().subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'db.json';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
+  onFileSelected(event: any) {
+    this.selectedFile = event.target.files[0];
+  }
+
+  upload() {
+    if (!this.selectedFile) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const json = JSON.parse(reader.result as string);
+      this.api.updateDb(json).subscribe(() => {
+        alert('Dati aggiornati in memoria');
+      });
+    };
+    reader.readAsText(this.selectedFile);
+  }
 
 
 
