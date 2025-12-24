@@ -28,11 +28,13 @@ export interface Fattura {
 
 
 export class FattureService {
-
+  // modifica remote main
+  // modifica locale main
   constructor(private http: HttpClient) {}
 
   private key = 'fatture';
   private url = 'assets/fatture.json';
+
   //private urlFatture = 'http://localhost:3000/fatture'; 
   private urlFatture = environment.baseUrl+'/fatture';  //'https://wsfatture.onrender.com/fatture'; 
   
