@@ -2,3 +2,18 @@ questo nuovo file per test
 
 modifico da client su branch AgEnterprice
 
+ultime modifiche
+
+
+docker run -d --name sqlserver -p 1433:1433 ^
+  -e "ACCEPT_EULA=Y" ^
+  -e "SA_PASSWORD=YourStrong!Passw0rd" ^
+  -v sql_data:/var/opt/mssql ^
+  mcr.microsoft.com/mssql/server:2022-latest
+
+
+
+  https://dashboard.render.com/
+  servizio on line di hosting per applicazioni web e database 
+  gratuito per piccoli progetti
+  con database postgresql e mysql

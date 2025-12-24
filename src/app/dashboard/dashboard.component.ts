@@ -33,7 +33,7 @@ export interface Paziente {
   Indirizzo     : string;
   Comune        : string;
   NomeCompleto  : string;
-
+  indirizzoPaziente : string;
 }
 
 @Component({
@@ -86,12 +86,14 @@ export class DashboardComponent implements OnInit {
   importoSelezionato : string = '100 €';
 
   valoreSelezionatoImporto = "";
+  valoreSelezionatoImportoFattura = "";
   valoreSelezionatoIva = "0";
 
   listaCertificato: any[] = [];
 
   lsPazienti: Paziente[] = [];
 
+  
   listaImporto = [
     { valore: '81.97 €', descrizione: '81.97 €' },
     { valore: '50 €', descrizione: '50 €' },
@@ -226,15 +228,16 @@ export class DashboardComponent implements OnInit {
 
       const nuovaFattura = {
         id          : crypto.randomUUID(),
-        numero      : this.nextFattura,
-        //data        : this.dataSelezionata?.toLocaleDateString() ?? "",
+        numero      : this.nextFattura = isNaN(Number(this.nextFattura)) ? this.nextFattura : Number(this.nextFattura), //        this.nextFattura,
         data        : this.dataSelezionata ?? "",
         imponibile  : imponibile,
         importo     : Math.ceil(imponibile + ivaSuImponibile),
         paziente    : this.nomeCompletoPaziente,
         iva         : ivaSuImponibile,
         ivaPerc     : ivaPerc,
-        codiceFiscalePaziente : this.codiceFiscalePaziente
+        codiceFiscalePaziente : this.codiceFiscalePaziente,
+        descrizioneCertificato : this.valoreSelezionato,
+        indirizzoPaziente : this.indirizzoPaziente
       };
 
       return nuovaFattura;
@@ -264,7 +267,7 @@ export class DashboardComponent implements OnInit {
           }).then(result => {
             let nuovaFattura = this.getFattura();
             var listfatture = this.fattureService.insertNewFattura(nuovaFattura);
-              listfatture.subscribe(valore  => {
+              listfatture?.subscribe(valore  => {
                 console.log('Valore ricevuto:', valore);
             });
             this.pbSalvaFattura  = false;

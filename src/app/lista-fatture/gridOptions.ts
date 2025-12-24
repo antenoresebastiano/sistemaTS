@@ -14,6 +14,7 @@ export interface FatturaData {
     data : string;
     iva : number;
     ivaPerc : number;
+    descrizioneCertificato : string;
   }
 
   export const gridOptions: GridOptions<FatturaData> = {
@@ -35,6 +36,10 @@ export interface FatturaData {
                  floatingFilter: true
 
             }, 
+            {    field: "descrizioneCertificato", 
+                 filter: "agTextColumnFilter" ,
+                 floatingFilter: true
+            },
             {    field: "imponibile",
                  cellStyle: { textAlign: "right" } 
             },
@@ -52,12 +57,12 @@ export interface FatturaData {
             } , 
             {
                 headerName: "Azioni",
-                cellRenderer: (params: { context: { componentParent: { modifica: (arg0: any) => any; elimina: (arg0: any) => any; }; }; data: any; }) => {
+                cellRenderer: (params: { context: { componentParent: { generaPdf: (arg0: any) => any; elimina: (arg0: any) => any; }; }; data: any; }) => {
                   const container = document.createElement("div");
               
                   const btnEdit = document.createElement("button");
-                  btnEdit.innerText = "✏️";
-                  btnEdit.addEventListener("click", () => params.context.componentParent.modifica(params.data));
+                  btnEdit.innerText = "📝";
+                  btnEdit.addEventListener("click", () => params.context.componentParent.generaPdf(params.data));
               
                   const btnDelete = document.createElement("button");
                   btnDelete.innerText = "🗑️";

@@ -1,0 +1,28 @@
+GitHub Pages: ng add angular-cli-ghpages
+
+
+cerca in angular.json
+
+"deploy": {
+  "builder": "angular-cli-ghpages:deploy",
+  "options": {
+    "baseHref": "/nome-repo/"
+  }
+
+
+  Se c’è, tutto è a posto.
+
+
+  ng deploy
+  compila il progetto in produzione
+  crea il branch gh-pages
+  pubblica l’app su GitHub Pages
+
+
+  https://antenoresebastiano.github.io/sistemaTS/
+
+
+
+  ng build --configuration production --base-href=/sistemaTS/
+
+  ng deploy --base-href=/sistemaTS/

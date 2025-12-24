@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import * as CryptoJS from 'crypto-js';
-
+import { environment } from '../../environments/environment';
 
 const secretKey = 'chiave-super-segreta';
 
@@ -17,6 +17,8 @@ export interface Fattura {
   iva       : number;
   ivaPerc   : number;
   codiceFiscalePaziente : string; 
+  descrizioneCertificato : string;
+  indirizzoPaziente : string;
 }
 
 @Injectable({
@@ -32,13 +34,15 @@ export class FattureService {
 
   private key = 'fatture';
   private url = 'assets/fatture.json';
-  private urlFatture = 'https://wsfatture.onrender.com/fatture';   // 'http://localhost:3000/fatture'; //
-   
+
+  //private urlFatture = 'http://localhost:3000/fatture'; 
+  private urlFatture = environment.baseUrl+'/fatture';  //'https://wsfatture.onrender.com/fatture'; 
   
   private encryptObject(fattura: Fattura) {
     
     fattura.paziente =  CryptoJS.AES.encrypt(fattura.paziente, secretKey).toString();
     fattura.codiceFiscalePaziente =  CryptoJS.AES.encrypt(fattura.codiceFiscalePaziente, secretKey).toString();
+    fattura.indirizzoPaziente =  CryptoJS.AES.encrypt(fattura.indirizzoPaziente, secretKey).toString();
     return fattura;
 
   }
@@ -62,6 +66,8 @@ export class FattureService {
     };*/
     var appo = {...fattura};
     appo.codiceFiscalePaziente = this.decryptField(appo.codiceFiscalePaziente) 
+    appo.paziente = this.decryptField(appo.paziente) 
+    appo.indirizzoPaziente  = this.decryptField(appo.indirizzoPaziente) 
     
     return appo;
   }        
@@ -70,15 +76,34 @@ export class FattureService {
   
   //const encrypted = CryptoJS.AES.encrypt(testo, secretKey).toString();
   
-    _getListaFatture(): Observable<Fattura[]> {
+   _getListaFatture(): Observable<Fattura[]> {
       return this.http.get<Fattura[]>(this.urlFatture).pipe(
           map(fatture => fatture.map(f => this.decryptFattura(f)))
       );
     }
   
-  
-  insertNewFattura = ( fattura: Fattura ) =>  this.http.post<Fattura>(this.urlFatture, this.encryptObject(fattura));
+    getFatturaByNumero(numero: number): Observable<Fattura | undefined> {
+      return this._getListaFatture().pipe(
+        map(fatture => {
+          const fattura = fatture.find(f => Number(f.numero) === numero);
+          return fattura ? this.decryptFattura(fattura) : undefined;
+        })
+
+
+
+      );
       
+
+    }
+
+
+  insertNewFattura ( fattura: Fattura ) : Observable<Fattura> | null {
+
+    var encryptedFattura = this.encryptObject(fattura);
+    return this.http.post<Fattura>(this.urlFatture, this.encryptObject(encryptedFattura));
+
+  }
+
   getUltimoNumeroFattura(): Observable<number> {
     return this._getListaFatture().pipe(
       map((fatture: Fattura[]) => {

@@ -17,6 +17,9 @@ import { Component } from '@angular/core';
 import { createTheme } from 'ag-grid-community';
 
 import { AllEnterpriseModule } from "ag-grid-enterprise";
+import jsPDF from 'jspdf';
+import { Subscriber } from 'rxjs';
+import autoTable from 'jspdf-autotable';
 
 
 
@@ -201,6 +204,58 @@ onGridReady(params: any) {
     });
   }
   
+  generaPdf(fattura : Fattura) {
+    const doc = new jsPDF();
+    var Fattura = this.fattureService.getFatturaByNumero(fattura.numero);
+
+    Fattura.subscribe( fattura => { 
+        
+       var  username = 'Rosaci Carmela';
+       var  codiceFiscaleMedico = 'RSCCML58A44F112E';
+       var  indirizzoMedico = "Via Mar Nero 3/B Milano";
+    
+        doc.setFontSize(16);
+        doc.text('Fattura', 10, 10);
+          // Dati base
+        doc.setFontSize(12);
+        doc.text(`Numero fattura: ${fattura?.numero} del  ${fattura?.data}`  , 10, 20);
+        doc.text(`Dott.ssa : ${username}  ${codiceFiscaleMedico}` , 10, 30);
+        doc.text(`${indirizzoMedico} ` , 10, 40);
+        
+        doc.text(`Paziente: ${fattura?.paziente}`, 10, 70);
+        doc.text(`Codice Fiscale: ${fattura?.codiceFiscalePaziente}`, 10, 80);
+        doc.text(`Indirizzo: ${fattura?.indirizzoPaziente }`, 10, 90);
+        doc.text(` ${fattura?.descrizioneCertificato}`, 10, 110);
+        
+        doc.text(`Imponibile : €  ${fattura?.imponibile} `, 10, 130);
+        doc.text(`iva ${fattura?.ivaPerc} %`, 80, 130);
+
+        //importoIva = Math.round(importoIva* 100)/100;
+        doc.text(`: ${fattura?.iva} €`, 99, 130);
+
+        doc.text(`Totale fattura:  ${fattura?.importo} €`, 10, 140);
+        //doc.text(`Totale: ${this.totale} €`, 10, 50);
+
+        // (opzionale) tabella
+        autoTable(doc, {
+          startY: 60,
+        // head: [['Voce', 'Q.tà', 'Prezzo', 'Totale']],
+          body: [
+            // esempio statico, puoi sostituirlo con array del form
+          // ['Prodotto A', '2', '10 €', '20 €'],
+          // ['Prodotto B', '1', '15 €', '15 €']
+          ]
+        });
+
+        // Scarica il PDF
+        doc.save(`fattura_${fattura?.numero || 'senza_numero'}.pdf`);
+
+
+
+      })
+
+    
+  }
 
   
 
