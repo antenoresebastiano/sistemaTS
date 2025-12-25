@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import * as CryptoJS from 'crypto-js';
 import { environment } from '../../environments/environment';
+console.log('ENV:', environment);
 
 const secretKey = 'chiave-super-segreta';
 
@@ -37,7 +38,8 @@ export class FattureService {
 
   //private urlFatture = 'http://localhost:3000/fatture'; 
   private urlFatture = environment.baseUrl+'/fatture';  //'https://wsfatture.onrender.com/fatture'; 
-  
+    
+
   private encryptObject(fattura: Fattura) {
     
     fattura.paziente =  CryptoJS.AES.encrypt(fattura.paziente, secretKey).toString();
