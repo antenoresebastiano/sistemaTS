@@ -9,4 +9,43 @@
 
 
 
+<br>
+<br>
 
+<form>
+  <div class="row">
+    <label style="width: 140px" for="testoDecript">Testo da Criptare</label>
+    <div class="field">
+      <input style="width: 140px"
+             id="testoDecript"
+             type="text"
+             name="testoDecript"
+             [(ngModel)]="testoDaCriptare" />
+    </div>
+  </div>
+
+  <div class="row">
+    <label style="width: 140px" for="testoCriptato">Testo Criptato</label>
+    <div class="field">
+      <input id="testCriptato"
+             type="text"
+             name="testCriptato"
+             [(ngModel)]="testoCriptato" />
+    </div>
+  </div>
+
+  <button type="button" (click)="cripta()">Cripta</button>
+
+
+    <div class="row">
+    <label style="width: 140px" for="testoDeCriptato">Testo testoDeCriptato</label>
+    <div class="field">
+      <input id="testoDeCriptato"
+             type="text"
+             name="testoDeCriptato"
+             [(ngModel)]="testoDeCriptato" />
+    </div>
+  </div>
+
+
+</form>

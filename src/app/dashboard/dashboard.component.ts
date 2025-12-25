@@ -12,6 +12,7 @@ import { MAT_DATE_FORMATS } from '@angular/material/core';
 import { Fattura, FattureService } from '../services/fatture.service';
 import { endWith } from 'rxjs';
 import Swal from 'sweetalert2';
+import { ApiService } from '../services/api.service';
 
 export const MY_DATE_FORMATS = {
   parse: {
@@ -57,7 +58,7 @@ export interface Paziente {
 
 export class DashboardComponent implements OnInit {
 
-  constructor(private cd: ChangeDetectorRef , private http: HttpClient , private fattureService: FattureService) {}
+  constructor(private api: ApiService , private cd: ChangeDetectorRef , private http: HttpClient , private fattureService: FattureService) {}
   
   pbSalvaFattura : boolean = false;
   fattureEmesse : any[] = [];
@@ -271,11 +272,12 @@ export class DashboardComponent implements OnInit {
                 console.log('Valore ricevuto:', valore);
             });
             this.pbSalvaFattura  = false;
-
+            this.download();
           });
 
         }
       });
+
      
      
       
@@ -332,7 +334,17 @@ export class DashboardComponent implements OnInit {
     }
    
     
-    
+   download() {
+    this.api.downloadDb().subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'db.json';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
 
  }
  

@@ -20,7 +20,8 @@ import { AllEnterpriseModule } from "ag-grid-enterprise";
 import jsPDF from 'jspdf';
 import { Subscriber } from 'rxjs';
 import autoTable from 'jspdf-autotable';
-
+import { CriptService } from '../services/cript.service';
+import { ApiService } from '../services/api.service';
 
 
 
@@ -40,6 +41,7 @@ interface IRow {
 @Component({
   selector: 'lista-fatture',
   standalone: true,
+  providers: [CriptService],
   imports: [
     CommonModule,
     AgGridAngular,
@@ -67,7 +69,8 @@ export class ListaFattureComponent implements OnInit {
     private fattureService: FattureService ,
     private route: ActivatedRoute,
     private router: Router,
-    private snack: MatSnackBar
+    private snack: MatSnackBar,
+    private api: ApiService,
     
   ) {}
 
@@ -258,6 +261,17 @@ onGridReady(params: any) {
   }
 
   
+
+  download() {
+    this.api.downloadDb().subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'db.json';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
 
 }
 

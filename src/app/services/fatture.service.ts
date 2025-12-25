@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
-import * as CryptoJS from 'crypto-js';
+//import * as CryptoJS from 'crypto-js';
 import { environment } from '../../environments/environment';
+import { CriptService } from './cript.service';
 console.log('ENV:', environment);
 
 const secretKey = 'chiave-super-segreta';
@@ -31,7 +32,7 @@ export interface Fattura {
 export class FattureService {
   // modifica remote main
   // modifica locale main
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient , private criptService: CriptService) {}
 
   private key = 'fatture';
   private url = 'assets/fatture.json';
@@ -40,51 +41,52 @@ export class FattureService {
   private urlFatture = environment.baseUrl+'/fatture';  //'https://wsfatture.onrender.com/fatture'; 
     
 
-  private encryptObject(fattura: Fattura) {
+  private encryptFattura(fattura: Fattura) {
     
-    fattura.paziente =  CryptoJS.AES.encrypt(fattura.paziente, secretKey).toString();
-    fattura.codiceFiscalePaziente =  CryptoJS.AES.encrypt(fattura.codiceFiscalePaziente, secretKey).toString();
-    fattura.indirizzoPaziente =  CryptoJS.AES.encrypt(fattura.indirizzoPaziente, secretKey).toString();
+     fattura.paziente = this.criptService.cripta(fattura.paziente);
+     fattura.codiceFiscalePaziente = this.criptService.cripta(fattura.codiceFiscalePaziente);
+     fattura.indirizzoPaziente = this.criptService.cripta(fattura.indirizzoPaziente);
+    
     return fattura;
 
   }
 
+
   decryptField(value: string): string {
-    try {
-      const decrypted = CryptoJS.AES.decrypt(value, secretKey).toString(CryptoJS.enc.Utf8);
-        // ✅ Se decrypt fallisce, CryptoJS restituisce stringa vuota
-      return decrypted || value;
   
-    } catch {
-      return value;
-    }
+    return this.criptService.decripta(value);
+    
   }
 
+  encryptField(value: string): string {
+  
+    return this.criptService.cripta(value);
+  
+  }
+
+
   private decryptFattura(fattura : Fattura) {
-    /*return {
-      ...fattura,
-      paziente: this.decryptField(fattura.paziente),
-      codiceFiscalePaziente: this.decryptField(fattura.codiceFiscalePaziente)
-    };*/
+    
     var appo = {...fattura};
-    appo.codiceFiscalePaziente = this.decryptField(appo.codiceFiscalePaziente) 
-    appo.paziente = this.decryptField(appo.paziente) 
-    appo.indirizzoPaziente  = this.decryptField(appo.indirizzoPaziente) 
+    const codiceFiscalePaziente = this.criptService.decripta(appo.codiceFiscalePaziente);
+    const paziente = this.criptService.decripta(appo.paziente);
+    const indirizzoPaziente  = this.criptService.decripta(appo.indirizzoPaziente);
+    
+    appo.codiceFiscalePaziente = codiceFiscalePaziente;
+    appo.paziente = paziente;
+    appo.indirizzoPaziente  = indirizzoPaziente; 
     
     return appo;
   }        
    
   
-  
-  //const encrypted = CryptoJS.AES.encrypt(testo, secretKey).toString();
-  
-   _getListaFatture(): Observable<Fattura[]> {
+  _getListaFatture(): Observable<Fattura[]> {
       return this.http.get<Fattura[]>(this.urlFatture).pipe(
           map(fatture => fatture.map(f => this.decryptFattura(f)))
       );
-    }
+  }
   
-    getFatturaByNumero(numero: number): Observable<Fattura | undefined> {
+  getFatturaByNumero(numero: number): Observable<Fattura | undefined> {
       return this._getListaFatture().pipe(
         map(fatture => {
           const fattura = fatture.find(f => Number(f.numero) === numero);
@@ -96,13 +98,13 @@ export class FattureService {
       );
       
 
-    }
+  }
 
 
   insertNewFattura ( fattura: Fattura ) : Observable<Fattura> | null {
 
-    var encryptedFattura = this.encryptObject(fattura);
-    return this.http.post<Fattura>(this.urlFatture, this.encryptObject(encryptedFattura));
+    var encryptedFattura = this.encryptFattura(fattura);
+    return this.http.post<Fattura>(this.urlFatture, this.encryptFattura(encryptedFattura));
 
   }
 
