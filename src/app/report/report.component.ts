@@ -2,6 +2,7 @@ import { signal, Component ,  computed, effect } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import * as CryptoJS from 'crypto-js';
 import { FormsModule } from '@angular/forms';
+import {  FattureService } from '../services/fatture.service';
 
  const secretKey = '1234567890123456'; // deve essere lunga almeno 16 caratteri
 
@@ -25,7 +26,7 @@ export class ReportComponent {
 
 
   
-  constructor( private api: ApiService) {
+  constructor( private api: ApiService , private fattureService: FattureService) {
 
   }
 
@@ -84,7 +85,19 @@ export class ReportComponent {
     reader.readAsText(this.selectedFile);
   }
 
+  downloadPazientiCript() {
+   var downLoadpazienti= this.fattureService.downloadPazientiCript()
+     .subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'pazienti.enc'; // nome del file
+      a.click();
 
+      window.URL.revokeObjectURL(url);
+   });
+  
+  }
 
   
   

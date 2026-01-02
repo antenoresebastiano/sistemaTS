@@ -32,4 +32,6 @@ export class ApiService {
   updateDb(json: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/update`, json);
   }
+
+  
 }

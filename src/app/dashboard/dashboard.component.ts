@@ -14,6 +14,8 @@ import { endWith } from 'rxjs';
 import Swal from 'sweetalert2';
 import { ApiService } from '../services/api.service';
 
+
+
 export const MY_DATE_FORMATS = {
   parse: {
     dateInput: 'dd MMMM yyyy',
@@ -108,22 +110,25 @@ export class DashboardComponent implements OnInit {
 
 
     ngOnInit() {
-        this.http.get<any[]>('assets/clienti.json').subscribe((data: any[]) => {
-         this.listaPazienti = data;
-         this.listaPazienti = data.map((paziente, index) => ({
-          ...paziente,
-              id: `P${String(index + 1).padStart(3, '0')}`
-          }));
        
-        });
 
-        this.http.get<any[]>('assets/certificati.json').subscribe((data: any[]) => {
+      this.http.get<any[]>('assets/certificati.json').subscribe((data: any[]) => {
           this.listaCertificato = data;
-         });
+       });
 
-         this.nuovaFattura(); 
+
+      this.nuovaFattura(); 
      
-    }
+      var observablePazienti= this.fattureService._getListaPazientiDecript();
+      observablePazienti.subscribe(lista => {
+        this.listaPazienti = lista.map((paziente: any, index: number) => ({
+          ...paziente,
+          id: paziente.id || `P${String(index + 1).padStart(3, '0')}`
+        }));
+      
+      });
+
+  }
 
    
        

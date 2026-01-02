@@ -85,19 +85,66 @@ export class FattureService {
           map(fatture => fatture.map(f => this.decryptFattura(f)))
       );
   }
-  
+
+  _getListaPazienti(): Observable<any[]> {
+      return this.http.get<any[]>(environment.baseUrl+'/api/pazienti'); 
+  } 
+
+  __getListaPazientiDecript(): Observable<any[]> {
+  return this.http.get<any[]>(environment.baseUrl + '/api/pazienti').pipe(
+    map(lista => 
+      lista.map(paziente => {
+
+        // Decripta ogni campo dell’oggetto
+        const decrypted = Object.fromEntries(
+          Object.entries(paziente).map(([key, value]) => [
+            key,
+            typeof value === 'string'
+              ? this.criptService.decripta(value)
+              : value
+          ])
+        );
+
+        return decrypted;
+      })
+    )
+  );
+}
+
+_getListaPazientiDecript(): Observable<any[]> {
+  return this.http.get<any[]>(environment.baseUrl + '/api/pazienti').pipe(
+    map(lista =>
+      lista.map(paziente => {
+        Object.keys(paziente).forEach(key => {
+          const value = paziente[key];
+          if (typeof value === 'string') {
+            paziente[key] = this.criptService.decripta(value);
+          }
+        });
+        return paziente;
+      })
+    )
+  );
+}
+
+
+   _downLoadListaPazienti(): Observable<any[]> {
+      return this.http.get<any[]>(environment.baseUrl+'/download/pazientiCript'); 
+     } 
+
+ downloadPazientiCript() {
+  return this.http.get(environment.baseUrl+'/download/pazientiCript', {
+    responseType: 'blob' // fondamentale per scaricare file binari
+  });
+}
+
   getFatturaByNumero(numero: number): Observable<Fattura | undefined> {
       return this._getListaFatture().pipe(
         map(fatture => {
           const fattura = fatture.find(f => Number(f.numero) === numero);
           return fattura ? this.decryptFattura(fattura) : undefined;
         })
-
-
-
       );
-      
-
   }
 
 
